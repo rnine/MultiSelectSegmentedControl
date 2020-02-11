@@ -41,6 +41,10 @@ import UIKit
         didSet {
             stackView.alpha = isEnabled ? 1 : 1 / 3
             borderView.alpha = isEnabled ? 1 : 1 / 3
+
+            for divider in dividers {
+                divider.alpha = isEnabled ? 1 : 1 / 3
+            }
         }
     }
 
