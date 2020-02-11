@@ -40,6 +40,7 @@ import UIKit
     @objc public override var isEnabled: Bool {
         didSet {
             stackView.alpha = isEnabled ? 1 : 1 / 3
+            borderView.alpha = isEnabled ? 1 : 1 / 3
         }
     }
 
