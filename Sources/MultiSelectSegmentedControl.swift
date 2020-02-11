@@ -284,6 +284,7 @@ import UIKit
     let stackView = UIStackView()
     let borderView = UIView()
     var dividers: [UIView] = []
+    var currentHighlightedSegment: MultiSelectSegment?
 
     private func setup() {
         addConstrainedSubview(borderView, constrain: .top, .bottom, .left, .right)
@@ -305,16 +306,23 @@ import UIKit
         accessibilityIdentifier = "MultiSelectSegmentedControl"
     }
 
-    @objc open func didTap(gesture: UITapGestureRecognizer) {
+    @objc open func didTap(gesture: UILongPressGestureRecognizer) {
         let location = gesture.location(in: self)
-        guard let segment = hitTest(location, with: nil) as? MultiSelectSegment else { return }
+
+        guard let segment = ((hitTest(location, with: nil) ?? currentHighlightedSegment) as? MultiSelectSegment) else { return }
         guard let index = segments.firstIndex(of: segment) else { return }
 
+        if let currentHighlightedSegment = currentHighlightedSegment, currentHighlightedSegment != segment {
+            currentHighlightedSegment.isHighlighted = false
+        }
+
         switch gesture.state {
-        case .began:
+        case .began, .changed:
             segment.isHighlighted = true
+            currentHighlightedSegment = segment
         case .ended:
             segment.isHighlighted = false
+            currentHighlightedSegment = nil
 
             perform(animated: true) {
                 if !self.isMomentary {
@@ -330,7 +338,8 @@ import UIKit
                 self.delegate?.multiSelect(self, didChange: segment.isSelected, at: index)
             }
         default:
-            break
+            segment.isHighlighted = false
+            currentHighlightedSegment = nil
         }
     }
 
