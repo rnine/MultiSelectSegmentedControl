@@ -46,6 +46,12 @@ public class MultiSelectSegment: UIView {
         }
     }
 
+    public var isHighlighted: Bool = false {
+        didSet {
+            stackView.alpha = isHighlighted ? 2 / 3 : 1
+        }
+    }
+
     public var isEnabled: Bool {
         get {
             return isUserInteractionEnabled

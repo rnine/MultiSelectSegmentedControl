@@ -33,6 +33,9 @@ import UIKit
         }
     }
 
+    /// If set, then we don't keep showing selected state after tracking ends. default is `false`.
+    @objc public var isMomentary: Bool = false
+
     /// Indexes of selected segments (can be more than one if `allowsMultipleSelection` is `true`.
     @objc public var selectedSegmentIndexes: IndexSet {
         get {
@@ -293,7 +296,12 @@ import UIKit
         borderRadius = { borderRadius }()
         tintColorDidChange()
         borderView.isUserInteractionEnabled = false
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
+
+        let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didTap))
+        gestureRecognizer.minimumPressDuration = 0
+        gestureRecognizer.numberOfTapsRequired = 0
+        addGestureRecognizer(gestureRecognizer)
+
         accessibilityIdentifier = "MultiSelectSegmentedControl"
     }
 
@@ -301,16 +309,28 @@ import UIKit
         let location = gesture.location(in: self)
         guard let segment = hitTest(location, with: nil) as? MultiSelectSegment else { return }
         guard let index = segments.firstIndex(of: segment) else { return }
-        perform(animated: true) {
-            if self.allowsMultipleSelection {
-                segment.isSelected.toggle()
-                self.showDividersBetweenSelectedSegments()
-            } else {
-                if segment.isSelected { return }
-                self.selectedSegmentIndex = index
+
+        switch gesture.state {
+        case .began:
+            segment.isHighlighted = true
+        case .ended:
+            segment.isHighlighted = false
+
+            perform(animated: true) {
+                if !self.isMomentary {
+                    if self.allowsMultipleSelection {
+                        segment.isSelected.toggle()
+                        self.showDividersBetweenSelectedSegments()
+                    } else {
+                        if segment.isSelected { return }
+                        self.selectedSegmentIndex = index
+                    }
+                }
+                self.sendActions(for: [.valueChanged, .primaryActionTriggered])
+                self.delegate?.multiSelect(self, didChange: segment.isSelected, at: index)
             }
-            self.sendActions(for: [.valueChanged, .primaryActionTriggered])
-            self.delegate?.multiSelect(self, didChange: segment.isSelected, at: index)
+        default:
+            break
         }
     }
 
