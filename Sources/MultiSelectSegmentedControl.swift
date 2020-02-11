@@ -39,12 +39,8 @@ import UIKit
     /// Default is `true`. if `false`, ignores touch events and subclasses may draw differently.
     @objc public override var isEnabled: Bool {
         didSet {
-            stackView.alpha = isEnabled ? 1 : 1 / 3
-            borderView.alpha = isEnabled ? 1 : 1 / 3
-
-            for divider in dividers {
-                divider.alpha = isEnabled ? 1 : 1 / 3
-            }
+            isUserInteractionEnabled = isEnabled
+            alpha = isEnabled ? 1 : 1 / 3
         }
     }
 
