@@ -36,6 +36,12 @@ import UIKit
     /// If set, then we don't keep showing selected state after tracking ends. default is `false`.
     @objc public var isMomentary: Bool = false
 
+    open override var isEnabled: Bool {
+        didSet {
+            stackView.alpha = isEnabled ? 1 : 2 / 3
+        }
+    }
+
     /// Indexes of selected segments (can be more than one if `allowsMultipleSelection` is `true`.
     @objc public var selectedSegmentIndexes: IndexSet {
         get {
