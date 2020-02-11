@@ -36,9 +36,10 @@ import UIKit
     /// If set, then we don't keep showing selected state after tracking ends. default is `false`.
     @objc public var isMomentary: Bool = false
 
-    open override var isEnabled: Bool {
+    /// Default is `true`. if `false`, ignores touch events and subclasses may draw differently.
+    @objc public override var isEnabled: Bool {
         didSet {
-            stackView.alpha = isEnabled ? 1 : 2 / 3
+            stackView.alpha = isEnabled ? 1 : 1 / 3
         }
     }
 
