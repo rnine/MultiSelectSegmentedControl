@@ -309,6 +309,7 @@ import UIKit
         let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didTap))
         gestureRecognizer.minimumPressDuration = 0
         gestureRecognizer.numberOfTapsRequired = 0
+        gestureRecognizer.delegate = self
         addGestureRecognizer(gestureRecognizer)
 
         accessibilityIdentifier = "MultiSelectSegmentedControl"
@@ -404,6 +405,12 @@ import UIKit
             constrain(divider, at: .top, diff: borderWidth)
             constrain(divider, at: .bottom, diff: -borderWidth)
         }
+    }
+}
+
+extension MultiSelectSegmentedControl: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
 
