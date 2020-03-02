@@ -317,22 +317,24 @@ import UIKit
 
     @objc open func didTap(gesture: UILongPressGestureRecognizer) {
         let location = gesture.location(in: self)
+        let segment = hitTest(location, with: nil) as? MultiSelectSegment
 
-        guard let segment = ((hitTest(location, with: nil) ?? currentHighlightedSegment) as? MultiSelectSegment) else { return }
-        guard let index = segments.firstIndex(of: segment) else { return }
-
+        // Update currentHighlightedSegment's highlighted state.
         if let currentHighlightedSegment = currentHighlightedSegment, currentHighlightedSegment != segment {
             currentHighlightedSegment.isHighlighted = false
         }
 
         switch gesture.state {
         case .began, .changed:
-            segment.isHighlighted = true
             currentHighlightedSegment = segment
-        case .ended:
-            segment.isHighlighted = false
+            currentHighlightedSegment?.isHighlighted = true
+        default:
+            currentHighlightedSegment?.isHighlighted = false
             currentHighlightedSegment = nil
+        }
 
+        // On gesture ended, perform actions if a segment was tapped.
+        if gesture.state == .ended, let segment = segment, let index = segments.firstIndex(of: segment) {
             perform(animated: true) {
                 if !self.isMomentary {
                     if self.allowsMultipleSelection {
@@ -346,9 +348,6 @@ import UIKit
                 self.sendActions(for: [.valueChanged, .primaryActionTriggered])
                 self.delegate?.multiSelect(self, didChange: segment.isSelected, at: index)
             }
-        default:
-            segment.isHighlighted = false
-            currentHighlightedSegment = nil
         }
     }
 
